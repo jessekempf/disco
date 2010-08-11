@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import StringIO
+import operator
 
 MAX_LEN_STRING = 10
 MAX_PACKET_LEN = 1024**3
@@ -33,13 +33,15 @@ def _read_string(msg, i):
     j += 1
     return (j + length + 1, msg[j: j + length])
 
-
 def encode_netstring_str(d):
-    msg = StringIO.StringIO()
-    for k, v in d:
-        msg.write("%d %s %d %s\n" %\
-            (len(k), k, len(v), v))
-    return msg.getvalue()
+        components = []
+        for key, value in d:
+                components.append('%d %s %d %s\n' % (
+                    len(key), str(key),
+                    len(value), str(value))
+                )
+
+        return reduce(operator.add, components)
 
 def encode_netstring_fd(d):
     s = encode_netstring_str(d.iteritems())
